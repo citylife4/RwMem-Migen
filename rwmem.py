@@ -1,5 +1,6 @@
 from migen      import *
 from migen.fhdl import verilog
+from migen.fhdl.verilog  import convert
 
 from random     import randrange
 from itertools import repeat
@@ -7,12 +8,6 @@ from itertools import repeat
 import sys
 import argparse
 
-# TODO: Remove
-from migen.sim.core      import run_simulation
-from migen.fhdl.specials import Signal
-from migen.fhdl.specials import If
-from migen.fhdl.specials import Memory
-from migen.fhdl.verilog  import convert
 
 #------------------------------------------------------------------------------
 # Logic
@@ -112,7 +107,6 @@ class Mem(Module):
 
         #Output Ack
         # It should be zero on error
-        #self.comb +=  [   self.s2m_ack.eq( ((ack_re & ~ack_re_reg) | ack_we) & ~self.s2m_error) ]
         self.comb +=  [   self.s2m_ack.eq( (ack_re  | ack_we) & ~self.s2m_error) ]
 
         ################
@@ -126,9 +120,7 @@ class Mem(Module):
                 self.s2m_error.eq(0)
             )
         ]
-        #Signals
-        #self.m2s_we = Signal()
-        #self.comb += self.m2s_we.eq(p1.we)
+
 
 """
 
@@ -302,7 +294,7 @@ class Builder:
     def run(self):
         ## Run Options
         if config["run_regression"]:
-            self.ret = self.test_regression()
+            self.return_code = self.test_regression()
         if config['print_verilog']:
             print("Printing Verilog to STDIN")
             print(self.print_verilog())
@@ -332,7 +324,7 @@ class Builder:
                             eval(test)(dut, mem_size=self.mem_size, data_width=self.data_width, regress_times=self.regression_counter, init_mem_values=self.init_mem_values),
                             vcd_name=vcd_name
                             )
-            return 1
+        return 1
 
 ####
 # Defaults
